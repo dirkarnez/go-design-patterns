@@ -1,6 +1,7 @@
 package strategy
 
 import (
+	"errors"
 	"fmt"
 )
 
@@ -42,15 +43,23 @@ func (d Division) Apply(lval, rval int) int {
 
 func Start() {
 	operationCode := "*" // +, -, *, /
-	operation := DoOperation(operationCode)
-	fmt.Println(operation.Operate(5, 2))
+	operation, err := DoOperation(operationCode)
+	if err != nil {
+		fmt.Println(err.Error())
+	} else {
+		fmt.Println(operation.Operate(5, 2))
+	}
 }
 
-func DoOperation(operationCode string) Operation {
+func DoOperation(operationCode string) (*Operation, error) {
 	operationMap := make(map[string]Operation)
 	operationMap [ "+" ] = Operation{Addition{}}
 	operationMap [ "-" ] = Operation{Subtraction{}}
 	operationMap [ "*" ] = Operation{Multiplication{}}
 	operationMap [ "/ " ] = Operation{Division{}}
-	return operationMap[operationCode]
+	operation, ok := operationMap[operationCode]
+	if !ok {
+		return nil, errors.New("Unsupported operation")
+	}
+	return &operation, nil
 }
